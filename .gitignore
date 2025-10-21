@@ -1,0 +1,12 @@
+# Rust build files
+/target/
+
+# Visual Studio Code settings
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
