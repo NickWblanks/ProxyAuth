@@ -1,0 +1,1 @@
+C:\Users\101095827\source\repos\ProxyAuth\ProxyAuth\Proxy_Authenticator_App\target\debug\Proxy_Authenticator_App.exe: C:\Users\101095827\source\repos\ProxyAuth\ProxyAuth\Proxy_Authenticator_App\src\main.rs
