@@ -1,5 +1,7 @@
 # Rust build files
-/target/
+**/target/
+**/debug
+**/Cargo.lock
 
 # Visual Studio Code settings
 .vscode/
