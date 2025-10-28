@@ -1,18 +1,32 @@
-use std::fs;
 use mysql::*;
 use mysql::prelude::*;
+use std::fs;
+use std::io::{self, Write};
+use rpassword::read_password;
 
 fn main() -> Result<()> {
-    // Connection URL: replace YOUR_PASSWORD with your MySQL root password
-    let url = "mysql://root:Mines1885@localhost:3307"; 
+    // Prompt for username
+    print!("Enter username: ");
+    io::stdout().flush()?; // make sure the prompt prints before waiting for input
+    let mut username = String::new();
+    io::stdin().read_line(&mut username)?;
+    let username = username.trim();
 
-    let pool = Pool::new(url)?;
+    // Prompt for password (hidden input)
+    print!("Enter password: ");
+    io::stdout().flush()?;
+    let password = read_password()?; // does not echo input
+
+    // Connection info
+    let url = format!("mysql://{}:{}@localhost:3307", username, password);
+
+    // Try connecting to db
+    let opts = Opts::from_url(&url)?;
+    let pool = Pool::new(opts)?;
     let mut conn = pool.get_conn()?;
 
-    // Read the SQL file
+    // Read and execute SQL file
     let sql = fs::read_to_string("database.sql")?;
-    
-    // Execute the SQL (create DB, table, insert)
     conn.query_drop(sql)?;
 
     // Select all users
@@ -20,10 +34,12 @@ fn main() -> Result<()> {
         "SELECT id, username, password, email, passKey FROM Proxy_Authenticator_DB.users"
     )?;
 
-    // Print users
+    // Print results
     for (id, username, password, email, passkey) in users {
-        println!("ID: {}, Username: {}, Password: {}, Email: {}, PassKey: {}", 
-            id, username, password, email, passkey);
+        println!(
+            "ID: {}, Username: {}, Password: {}, Email: {}, PassKey: {}",
+            id, username, password, email, passkey
+        );
     }
 
     Ok(())
