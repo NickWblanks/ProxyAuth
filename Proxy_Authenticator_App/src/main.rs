@@ -3,6 +3,8 @@ use mysql::prelude::*;
 use std::fs;
 use std::io::{self, Write};
 use rpassword::read_password;
+use webauthn_rs::prelude::*;
+
 
 fn main() -> Result<()> {
     // Prompt for username
@@ -44,3 +46,9 @@ fn main() -> Result<()> {
 
     Ok(())
 }
+
+// type domain name hellowworld.com -- basic webserver, VERY BASIC ONLY 1 OR 2 PAGES TO SERVER
+
+// niginx catch it --second web server, intercepts requests to .com
+//authenticate via webauthn -- authenticator added to second webserver
+//redirect to .com -- server .com page from second webserver
