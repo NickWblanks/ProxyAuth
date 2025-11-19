@@ -3,22 +3,17 @@ use mysql::prelude::*;
 use std::fs;
 use std::io::{self, Write};
 use rpassword::read_password;
+use dotenv::dotenv;
+use std::env;
 
-fn main() -> Result<()> {
-    // Prompt for username
-    print!("Enter username: ");
-    io::stdout().flush()?; // make sure the prompt prints before waiting for input
-    let mut username = String::new();
-    io::stdin().read_line(&mut username)?;
-    let username = username.trim();
-
-    // Prompt for password (hidden input)
-    print!("Enter password: ");
-    io::stdout().flush()?;
-    let password = read_password()?; // does not echo input
-
+fn main() -> Result<PooledConn> {
     // Connection info
-    let url = format!("mysql://{}:{}@localhost:3307", username, password);
+    dotenv().ok();
+    let username = env::var("MYSQL_USERNAME")
+    let password = env::var("MYSQL_PASSWORD")
+    let hostname = env::var("MYSQL_HOSTNAME")
+    let port = env::var("MYSQL_PORT")
+    let url = format!("mysql://{}:{}@{}:{}", username, password, hostname, port);
 
     // Try connecting to db
     let opts = Opts::from_url(&url)?;
@@ -28,19 +23,6 @@ fn main() -> Result<()> {
     // Read and execute SQL file
     let sql = fs::read_to_string("database.sql")?;
     conn.query_drop(sql)?;
-
-    // Select all users
-    let users: Vec<(i32, String, String, String, String)> = conn.query(
-        "SELECT id, username, password, email, passKey FROM Proxy_Authenticator_DB.users"
-    )?;
-
-    // Print results
-    for (id, username, password, email, passkey) in users {
-        println!(
-            "ID: {}, Username: {}, Password: {}, Email: {}, PassKey: {}",
-            id, username, password, email, passkey
-        );
-    }
 
     Ok(())
 }

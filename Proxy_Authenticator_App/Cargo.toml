@@ -6,3 +6,5 @@ edition = "2024"
 [dependencies]
 mysql = "25.0.0"
 rpassword = "7"
+fake = { version = "4", features = ["derive"] }
+dotenv = "0.15.0"

@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `Proxy_Authenticator_DB`.`users` (
     `username` VARCHAR(45) NOT NULL,
     `password` VARCHAR(45) NOT NULL,
     `email` VARCHAR(45) NOT NULL,
-    `passKey` VARCHAR(45) NOT NULL
+    `public_key` VARCHAR(45) NOT NULL
 );
 
-INSERT into users (username, password, email, passKey) VALUES ("admin", "admin", "admin", "admin");
+INSERT into users (username, password, email, public_key) VALUES ("admin", "admin", "admin", "admin");
