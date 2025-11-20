@@ -1,89 +1,85 @@
-use axum::{Router, routing::post, extract::State, extract::Json, response::Redirect};
-use mysql::*;
-use mysql::prelude::*;
+use actix_web::{web, App, HttpServer, HttpResponse, Responder};
 use serde::Deserialize;
-use std::sync::Arc;
-use webauthn_rs::prelude::*;
-use std::net::SocketAddr;
-use hyper::server::Server;
-use anyhow::Result;
 
-#[derive(Clone)]
-struct AppState {
-    pool: Pool,
-    webauthn: Webauthn,
+// Temporary in-memory storage for demonstration (replace with DB later)
+use std::sync::Mutex;
+use lazy_static::lazy_static;
+
+lazy_static! {
+    static ref REGISTERED_USERS: Mutex<Vec<String>> = Mutex::new(Vec::new());
 }
 
-#[derive(Deserialize)]
+// --- Start the auth server ---
+pub async fn start_auth_server() -> std::io::Result<()> {
+    let addr = "127.0.0.1:8080";
+
+    println!("Auth server running on http://{}", addr);
+
+    HttpServer::new(|| {
+        App::new()
+            .route("/", web::get().to(root))
+            .route("/register", web::post().to(register))
+            .route("/login", web::post().to(login))
+            .route("/webauthn/register", web::post().to(webauthn_register))
+    })
+    .bind(addr)?
+    .run()
+    .await
+}
+
+// --- Handlers ---
+
+async fn root() -> impl Responder {
+    HttpResponse::Ok().body("Hello from Auth Server!")
+}
+
+#[derive(Debug, Deserialize)]
+struct RegisterRequest {
+    username: String,
+    email: String,
+    // WebAuthn registration fields can go here
+}
+
+async fn register(form: web::Json<RegisterRequest>) -> impl Responder {
+    // TODO: Save user info to database
+    println!("Register request: {:?}", form);
+
+    // Temporary: store username in memory
+    REGISTERED_USERS.lock().unwrap().push(form.username.clone());
+
+    HttpResponse::Ok().body(format!("User '{}' registered (stub)", form.username))
+}
+
+#[derive(Debug, Deserialize)]
 struct LoginRequest {
     username: String,
+    password: String,
+    // WebAuthn assertion fields can go here
 }
 
-pub async fn run_auth_server() -> Result<()> {
-    // MySQL connection pool
-    let pool = Pool::new("mysql://root:password@localhost:3307")?;
+async fn login(form: web::Json<LoginRequest>) -> impl Responder {
+    // TODO: Check credentials or WebAuthn assertion
+    println!("Login request: {:?}", form);
 
-    // Initialize WebAuthn
-    let webauthn = WebauthnBuilder::new("proto_auth_app.com", "Proto Auth App")
-        .set_origin("https://auth.proto_auth_app.com")
-        .build()?;
-
-    let state = Arc::new(AppState { pool, webauthn });
-
-    // Build Axum router
-    let app = Router::new()
-        .route("/login", post(login_handler))
-        .route("/register", post(register_handler))
-        .with_state(state);
-
-    // Bind to address and run
-    let addr: SocketAddr = "127.0.0.1:8081".parse()?;
-    println!("Auth server running at http://{}", addr);
-    Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await?;
-
-    Ok(())
+    // For now, just return success
+    HttpResponse::Ok().body(format!("User '{}' logged in (stub)", form.username))
 }
 
-async fn login_handler(
-    State(state): State<Arc<AppState>>,
-    Json(req): Json<LoginRequest>,
-) -> Result<Redirect, String> {
-    let mut conn = state.pool.get_conn().map_err(|e| e.to_string())?;
+// --- WebAuthn registration endpoint ---
 
-    // Check if user exists
-    let exists: Option<String> = conn
-        .exec_first(
-            "SELECT username FROM Proxy_Authenticator_DB.users WHERE username = ?",
-            (req.username.clone(),),
-        )
-        .map_err(|e| e.to_string())?;
-
-    if exists.is_some() {
-        // TODO: Verify WebAuthn credentials
-        Ok(Redirect::to("https://proto_auth_app.com/dashboard"))
-    } else {
-        // Login failed — redirect to failure page
-        Ok(Redirect::to("https://auth.proto_auth_app.com/failed"))
-    }
+#[derive(Debug, Deserialize)]
+struct WebAuthnRegisterRequest {
+    username: String,
+    challenge: String,
+    // other WebAuthn fields like clientDataJSON, attestationObject
 }
 
-async fn register_handler(
-    State(state): State<Arc<AppState>>,
-    Json(req): Json<LoginRequest>,
-) -> Result<Json<serde_json::Value>, String> {
-    let mut conn = state.pool.get_conn().map_err(|e| e.to_string())?;
+async fn webauthn_register(form: web::Json<WebAuthnRegisterRequest>) -> impl Responder {
+    // TODO: Generate WebAuthn challenge, send to client, validate response
+    println!("WebAuthn registration request: {:?}", form);
 
-    // Insert new user
-    conn.exec_drop(
-        "INSERT INTO Proxy_Authenticator_DB.users (username) VALUES (?)",
-        (req.username.clone(),),
-    )
-    .map_err(|e| e.to_string())?;
+    // Temporary: store challenge in memory (stub)
+    let challenge_result = format!("Received challenge for {}", form.username);
 
-    Ok(Json(serde_json::json!({
-        "status": "success",
-        "message": "User registered"
-    })))
+    HttpResponse::Ok().body(challenge_result)
 }
