@@ -1,0 +1,9 @@
+services:
+  nginx:
+    container_name: proxy-nginx
+    build: .
+    ports:
+      - "80:80"
+  rust:
+    container_name: proxy-auth-app
+    build: ./Proxy_Authenticator_App/
