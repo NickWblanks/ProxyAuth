@@ -1,17 +1,32 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Proxy Auth</title>
-    <link href="frontend.css" rel="stylesheet" />
-  </head>
-  <body>
-    <div class="center">
-      <button id="register">Register</button>
-      <button id="login">Login</button>
-    </div>
-  </body>
-</html>
+<head>
+    <meta charset="UTF-8">
+    <title>Proxy Authenticator Demo</title>
+    <link rel="stylesheet" href="/Frontend/frontend.css">
+    <script src="/Frontend/Frontend.js" defer></script>
+</head>
+<body>
+    <h1>Proxy Authenticator Demo</h1>
 
-<script src="Frontend.js"></script>
+    <!-- Registration -->
+    <section>
+        <h2>Register</h2>
+        <input id="reg_username" type="text" placeholder="Username" />
+        <input id="reg_email" type="email" placeholder="Email" />
+        <input id="reg_password" type="password" placeholder="Password" />
+        <button onclick="registerUser()">Register</button>
+    </section>
+
+    <hr />
+
+    <!-- Login -->
+    <section>
+        <h2>Login</h2>
+        <input id="login_username" type="text" placeholder="Username" />
+        <input id="login_password" type="password" placeholder="Password" />
+        <button onclick="loginUser()">Login</button>
+        <button onclick="loginWebAuthn()">Login with WebAuthn</button>
+    </section>
+</body>
+</html>
