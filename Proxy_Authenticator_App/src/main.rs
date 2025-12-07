@@ -1,46 +1,77 @@
-use mysql::*;
-use mysql::prelude::*;
-use std::fs;
-use std::io::{self, Write};
-use rpassword::read_password;
 
-fn main() -> Result<()> {
-    // Prompt for username
-    print!("Enter username: ");
-    io::stdout().flush()?; // make sure the prompt prints before waiting for input
-    let mut username = String::new();
-    io::stdin().read_line(&mut username)?;
-    let username = username.trim();
+use actix_files::{Files, NamedFile};
+use actix_web::{web, App, HttpResponse, HttpServer, Responder, Result, get, post};
+use serde::{Deserialize, Serialize};
+use sqlx::{ MySqlPool, mysql::MySqlPoolOptions};
+use base64::{engine::general_purpose, Engine as _};
+use uuid::Uuid;
 
-    // Prompt for password (hidden input)
-    print!("Enter password: ");
-    io::stdout().flush()?;
-    let password = read_password()?; // does not echo input
+// -----------------------------------------------------
+// STRUCTS
+// -----------------------------------------------------
 
-    // Connection info
-    let url = format!("mysql://{}:{}@localhost:3307", username, password);
+#[derive(Serialize, Deserialize)]
+struct User {
+    username: String,
+    password: String,
+    email: String
+}
 
-    // Try connecting to db
-    let opts = Opts::from_url(&url)?;
-    let pool = Pool::new(opts)?;
-    let mut conn = pool.get_conn()?;
+// -----------------------------------------------------
+// ROUTES
+// -----------------------------------------------------
 
-    // Read and execute SQL file
-    let sql = fs::read_to_string("database.sql")?;
-    conn.query_drop(sql)?;
+//get index
+//post register user 
+//post login user 
+//post begin webauthn 
+//post end webauthn
 
-    // Select all users
-    let users: Vec<(i32, String, String, String, String)> = conn.query(
-        "SELECT id, username, password, email, passKey FROM Proxy_Authenticator_DB.users"
-    )?;
 
-    // Print results
-    for (id, username, password, email, passkey) in users {
-        println!(
-            "ID: {}, Username: {}, Password: {}, Email: {}, PassKey: {}",
-            id, username, password, email, passkey
-        );
-    }
+#[get("/")]
+async fn index() -> Result<NamedFile> {
+    Ok(NamedFile::open("Frontend/frontend.html")?)
+}
 
-    Ok(())
+#[get("/frontend")]
+async fn frontend() -> Result<NamedFile> {
+    Ok(NamedFile::open("Frontend/frontend.html")?)
+}
+
+#[post("/register")]
+async fn register_user() -> impl Responder {
+    HttpResponse::Ok().body("register user")
+}
+
+#[post("/login")]
+async fn login_user() -> impl Responder {
+    HttpResponse::Ok().body("login user")
+}
+
+#[post("/webauthn/start")]
+async fn start_webauthn() -> impl Responder {
+    HttpResponse::Ok().body("start webauthn")
+}
+
+#[post("/webauthn/end")]
+async fn end_webauthn() -> impl Responder {
+    HttpResponse::Ok().body("end webauthn")
+}
+
+//main
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    HttpServer::new(|| {
+        App::new()
+            .service(index)
+            .service(frontend)
+            .service(register_user)
+            .service(login_user)
+            .service(start_webauthn)
+            .service(end_webauthn)
+            .service(Files::new("/", "Frontend/"))
+    })
+    .bind(("127.0.0.1", 8080))?
+    .run()
+    .await
 }
