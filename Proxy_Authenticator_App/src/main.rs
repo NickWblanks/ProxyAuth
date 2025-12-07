@@ -1,4 +1,4 @@
-
+mod auth;
 use actix_files::{Files, NamedFile};
 use actix_web::{web, App, HttpResponse, HttpServer, Responder, Result, get, post};
 use serde::{Deserialize, Serialize};
@@ -69,6 +69,7 @@ async fn main() -> std::io::Result<()> {
             .service(login_user)
             .service(start_webauthn)
             .service(end_webauthn)
+            .service(auth::authenticate_header)
             .service(Files::new("/", "Frontend/"))
     })
     .bind(("127.0.0.1", 8080))?
