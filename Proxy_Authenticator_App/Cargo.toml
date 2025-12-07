@@ -23,3 +23,7 @@ url = "2.5.7"
 uuid = { version = "1.19", features = ["v4"] }
 base64 = "0.22.1"
 
+webauthn-rs = { version = "0.5.3", features = ["serde"] }
+
+webauthn-rs-core = "0.5"
+
