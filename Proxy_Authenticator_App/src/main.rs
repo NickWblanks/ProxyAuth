@@ -1,4 +1,4 @@
-
+mod auth;
 use actix_files::{Files, NamedFile};
 use actix_web::{web, App, HttpResponse, HttpServer, Responder, Result, get, post};
 use serde::{Deserialize, Serialize, };
@@ -350,6 +350,8 @@ async fn main() -> std::io::Result<()> {
             .service(register_user)
             .service(login_user)
             .service(start_webauthn)
+            .service(end_webauthn)
+            .service(auth::authenticate_header)
             .service(finish_webauthn)
             .service(Files::new("/", "Frontend/"))
     })
