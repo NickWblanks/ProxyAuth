@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rust + WebAuthn Demo</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .box { border: 1px solid #ccc; padding: 1.5rem; margin-bottom: 2rem; border-radius: 8px; }
+        h2 { margin-top: 0; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        input { width: 100%; padding: 0.5rem; margin-bottom: 1rem; box-sizing: border-box; }
+        button { padding: 0.5rem 1rem; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
+        button:hover { background: #0056b3; }
+        .log { background: #f4f4f4; padding: 1rem; white-space: pre-wrap; font-family: monospace; border-radius: 4px; min-height: 50px;}
+    </style>
+</head>
+<body>
+
+    <h1>Proxy Authenticator Demo</h1>
+
+    <div class="box">
+        <h2>1. Register User (Password)</h2>
+        <p>You must create a user first before adding a passkey.</p>
+        <label>Username</label>
+        <input type="text" id="reg-username" placeholder="jdoe">
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="jdoe@example.com">
+        <label>Password</label>
+        <input type="password" id="reg-password" placeholder="secret">
+        <button onclick="registerPassword()">Register User</button>
+    </div>
+
+    <div class="box">
+        <h2>2. Add Passkey (WebAuthn)</h2>
+        <p>Links a passkey to an existing user.</p>
+        <label>Username</label>
+        <input type="text" id="webauthn-reg-username" placeholder="jdoe">
+        <button onclick="registerWebAuthn()">Register Passkey</button>
+    </div>
+
+    <div class="box">
+        <h2>3. Login (WebAuthn)</h2>
+        <label>Username</label>
+        <input type="text" id="login-username" placeholder="jdoe">
+        <button onclick="loginWebAuthn()">Login with Passkey</button>
+    </div>
+
+    <h3>Debug Log</h3>
+    <div id="log" class="log">Ready...</div>
+
+    <script src="Frontend.js"></script>
+</body>
+</html>
