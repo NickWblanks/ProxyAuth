@@ -7,11 +7,10 @@ services:
   rust:
     container_name: proxy-auth-app
     build: ./Proxy_Authenticator_App/
+    ports:
+      - "8080:8080"
   db:
     container_name: proxy-mysql-db
-    image: mysql:lts
+    build: ./mySQL/
     ports:
       - "3307:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: examplepassword
-      MYSQL_DATABASE: Proxy_Authenticator_DB
