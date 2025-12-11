@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::{App, HttpResponse, HttpServer, Responder, web};
 use dotenv::dotenv;
@@ -69,6 +70,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(data.clone())
+            .wrap(Cors::permissive())
             // API Routes
             .route("/register", web::post().to(register_password))
             .route("/login", web::post().to(login_password))

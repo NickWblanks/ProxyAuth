@@ -26,4 +26,5 @@ base64 = "0.22.1"
 webauthn-rs = { version = "0.5.3"}
 
 webauthn-rs-core = "0.5"
+actix-cors = "0.7.1"
 
