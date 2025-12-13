@@ -52,9 +52,9 @@ async fn main() -> std::io::Result<()> {
     let pool = MySqlPool::connect_with(db_options).await.expect("DB Fail");
     println!("Database Connected");
     // 2. WebAuthn Config
-    // CRITICAL: This port (8080) must match the .bind() port below!
+    // rp = relying party
     let rp_id = "localhost";
-    let rp_origin = Url::parse("http://localhost:8080").expect("Invalid URL");
+    let rp_origin = Url::parse("http://localhost").expect("Invalid URL");
     let builder = WebauthnBuilder::new(rp_id, &rp_origin).expect("Invalid config");
     let webauthn = builder.build().expect("Failed to build WebAuthn");
 
@@ -219,7 +219,7 @@ async fn webauthn_register_finish(
         .finish_passkey_registration(&body.register_response, &reg_state)
     {
         Ok(pk) => pk,
-        Err(_) => return HttpResponse::BadRequest().body("Verification failed"),
+        Err(err) => return HttpResponse::BadRequest().body(err.to_string()),
     };
 
     let passkey_json = serde_json::to_value(&passkey).unwrap();

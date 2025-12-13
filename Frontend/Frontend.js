@@ -170,6 +170,14 @@ async function loginWebAuthn() {
         const text = await finishRes.text();
         log(`[WebAuthn Login] ${finishRes.status}: ${text}`);
 
+        if (finishRes.ok) {
+            const searchParams = new URLSearchParams(window.location.search);
+            if (searchParams.has('callback')) {
+                const callbackUrl = searchParams.get('callback');
+                window.location.href = callbackUrl;
+            }
+        }
+
     } catch (e) {
         log(`[Error] ${e.message}`);
     }
