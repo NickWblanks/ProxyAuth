@@ -1,0 +1,25 @@
+{
+  "db_name": "MySQL",
+  "query": "SELECT cookie_value FROM cookies WHERE cookie_value = ? AND expires_at > NOW()",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "cookie_value",
+        "type_info": {
+          "type": "VarString",
+          "flags": "NOT_NULL | UNIQUE_KEY | NO_DEFAULT_VALUE",
+          "char_set": 224,
+          "max_size": 1020
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "9bc46bd233a316bedb8e63af00a4f83e3e5b6d3658a268e1acb26ae3aae169dc"
+}

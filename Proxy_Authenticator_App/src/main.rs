@@ -1,6 +1,6 @@
 use actix_cors::Cors;
 use actix_files::Files;
-use actix_web::{App, HttpResponse, HttpServer, Responder, web};
+use actix_web::{App, HttpResponse, HttpServer, Responder, web, HttpRequest};
 use dotenv::dotenv;
 use serde::{Deserialize, Serialize};
 use sqlx::mysql::{MySqlConnectOptions, MySqlPool, MySqlSslMode};
@@ -90,6 +90,14 @@ async fn main() -> std::io::Result<()> {
                 "/webauthn/login/finish",
                 web::post().to(webauthn_login_finish),
             )
+            .route(
+                "/cookie",
+                web::post().to(store_cookie),
+            )
+            .route(
+                "/auth",
+                web::get().to(auth),
+            )
     })
     .bind(("0.0.0.0", 8080))?
     .run()
@@ -115,6 +123,12 @@ struct RegisterFinishRequest {
 struct LoginFinishRequest {
     req_id: Uuid,
     login_response: PublicKeyCredential,
+}
+
+#[derive(Deserialize)]
+struct CookieRequest {
+    auth_value: String,
+    expires_at: String
 }
 
 // ---------------------------------------------------------------------------
@@ -315,3 +329,41 @@ async fn webauthn_login_finish(
     HttpResponse::Ok().body("WebAuthn Login Successful")
 }
 
+async fn store_cookie(
+    data: web::Data<AppState>,
+    body: web::Json<CookieRequest>,
+) -> impl Responder {
+    let (auth_value, expires_at) = (&body.auth_value, &body.expires_at);
+
+    sqlx::query!(
+        "INSERT INTO cookies (cookie_value, expires_at) VALUES (?, ?)",
+        auth_value,
+        expires_at
+    )
+    .execute(&data.db)
+    .await
+    .ok();
+
+    HttpResponse::Ok().body("Cookie Stored Successfully")
+}
+
+async fn auth(
+    data: web::Data<AppState>,
+    req: HttpRequest
+) -> impl Responder {
+    let auth_value = req.headers().get("Cookie").and_then(|h| h.to_str().ok());
+    let expires_at = req.headers().get("CookieExpiresAt").and_then(|h| h.to_str().ok());
+    let cookie = sqlx::query!(
+        "SELECT cookie_value FROM cookies WHERE cookie_value = ? AND expires_at > NOW()",
+        auth_value
+    )
+    .fetch_optional(&data.db)
+    .await
+    .unwrap_or(None);
+
+    if cookie.is_none() {
+        return HttpResponse::Unauthorized().body("Invalid or expired cookie");
+    }
+
+    HttpResponse::Ok().body("Authentication Successful")
+}

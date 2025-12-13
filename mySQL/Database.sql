@@ -20,3 +20,9 @@ CREATE TABLE users (
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE cookies (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cookie_value VARCHAR(255) UNIQUE NOT NULL,
+    expires_at TIMESTAMP NOT NULL
+);
