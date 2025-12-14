@@ -1,6 +1,6 @@
 {
   "db_name": "MySQL",
-  "query": "SELECT cookie_value FROM cookies WHERE cookie_value = ? AND expires_at > NOW()",
+  "query": "SELECT cookie_value FROM cookies WHERE cookie_value = ?",
   "describe": {
     "columns": [
       {
@@ -21,5 +21,5 @@
       false
     ]
   },
-  "hash": "9bc46bd233a316bedb8e63af00a4f83e3e5b6d3658a268e1acb26ae3aae169dc"
+  "hash": "b9c1f0ea264599b25706eaaf9900f95d3b61fed9be9554e4dca8a415b82d05cb"
 }

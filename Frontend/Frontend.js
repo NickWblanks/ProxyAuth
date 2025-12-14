@@ -186,7 +186,8 @@ async function loginWebAuthn() {
 
 // should only be called if login is successful
 async function setCookie() {
-    let cookieValue = "auth_value=" + window.crypto.getRandomValues(new Uint8Array(32)).toString();
+    let auth_value = window.crypto.getRandomValues(new Uint8Array(32)).toString();
+    let cookieValue = "auth_value=" + auth_value;
 
     let expires = new Date();
     expires.setTime(expires.getTime() + (24 * 60 * 60 * 1000)); // 1 day
@@ -197,7 +198,7 @@ async function setCookie() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            auth_value: cookieValue,
+            auth_value: auth_value,
             expires_at: expires.toISOString().split('T')[0] + ' ' + expires.toTimeString().split(' ')[0]
         })
     });

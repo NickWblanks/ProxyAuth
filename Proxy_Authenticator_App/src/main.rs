@@ -352,10 +352,17 @@ async fn auth(
     data: web::Data<AppState>,
     req: HttpRequest
 ) -> impl Responder {
-    let auth_value = req.headers().get("Cookie").and_then(|h| h.to_str().ok());
-    let expires_at = req.headers().get("CookieExpiresAt").and_then(|h| h.to_str().ok());
+    let mut auth_value = String::new();
+    if let Some(cookie_header) = get_cookie(&req) {
+        auth_value = (&cookie_header).to_string();
+        println!("Cookie Header: {}", auth_value);
+    } else {
+        println!("No Cookie Header Found");
+        return HttpResponse::Unauthorized().body("No cookie provided");
+    }
+
     let cookie = sqlx::query!(
-        "SELECT cookie_value FROM cookies WHERE cookie_value = ? AND expires_at > NOW()",
+        "SELECT cookie_value FROM cookies WHERE cookie_value = ?",
         auth_value
     )
     .fetch_optional(&data.db)
@@ -367,4 +374,8 @@ async fn auth(
     }
 
     HttpResponse::Ok().body("Authentication Successful")
+}
+
+fn get_cookie<'a>(req: &'a HttpRequest) -> Option<&'a str> {
+    req.headers().get("Cookie")?.to_str().ok()
 }
