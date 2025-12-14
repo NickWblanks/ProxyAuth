@@ -333,18 +333,19 @@ async fn store_cookie(
     data: web::Data<AppState>,
     body: web::Json<CookieRequest>,
 ) -> impl Responder {
-    let (auth_value, expires_at) = (&body.auth_value, &body.expires_at);
+    let auth_value = &body.auth_value;
+    let expires_at = &body.expires_at;
 
-    sqlx::query!(
+    match sqlx::query!(
         "INSERT INTO cookies (cookie_value, expires_at) VALUES (?, ?)",
         auth_value,
         expires_at
     )
     .execute(&data.db)
-    .await
-    .ok();
-
-    HttpResponse::Ok().body("Cookie Stored Successfully")
+    .await {
+        Ok(_) => HttpResponse::Ok().body("Cookie Stored Successfully"),
+        Err(e) => HttpResponse::InternalServerError().body(format!("DB Error: {}", e)),
+    }
 }
 
 async fn auth(

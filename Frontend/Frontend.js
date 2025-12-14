@@ -198,7 +198,7 @@ async function setCookie() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             auth_value: cookieValue,
-            expires_at: expires.toISOString()
+            expires_at: expires.toISOString().split('T')[0] + ' ' + expires.toTimeString().split(' ')[0]
         })
     });
 }
