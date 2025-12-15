@@ -170,7 +170,36 @@ async function loginWebAuthn() {
         const text = await finishRes.text();
         log(`[WebAuthn Login] ${finishRes.status}: ${text}`);
 
+        if (finishRes.ok) {
+            const searchParams = new URLSearchParams(window.location.search);
+            await setCookie();
+            if (searchParams.has('callback')) {
+                const callbackUrl = searchParams.get('callback');
+                window.location.href = callbackUrl;
+            }
+        }
+
     } catch (e) {
         log(`[Error] ${e.message}`);
     }
+}
+
+// should only be called if login is successful
+async function setCookie() {
+    let auth_value = window.crypto.getRandomValues(new Uint8Array(32)).toString();
+    let cookieValue = "auth_value=" + auth_value;
+
+    let expires = new Date();
+    expires.setTime(expires.getTime() + (24 * 60 * 60 * 1000)); // 1 day
+    document.cookie = cookieValue + ";expires=" + expires.toUTCString() + ";path=/";
+
+    // send to server too
+    const res = await fetch(`${API_URL}/cookie`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            auth_value: auth_value,
+            expires_at: expires.toISOString().split('T')[0] + ' ' + expires.toTimeString().split(' ')[0]
+        })
+    });
 }

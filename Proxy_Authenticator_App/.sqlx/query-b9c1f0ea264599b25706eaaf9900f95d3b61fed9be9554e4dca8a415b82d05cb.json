@@ -1,0 +1,25 @@
+{
+  "db_name": "MySQL",
+  "query": "SELECT cookie_value FROM cookies WHERE cookie_value = ?",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "cookie_value",
+        "type_info": {
+          "type": "VarString",
+          "flags": "NOT_NULL | UNIQUE_KEY | NO_DEFAULT_VALUE",
+          "char_set": 224,
+          "max_size": 1020
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "b9c1f0ea264599b25706eaaf9900f95d3b61fed9be9554e4dca8a415b82d05cb"
+}
